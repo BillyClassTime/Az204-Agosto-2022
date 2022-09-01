@@ -22,6 +22,8 @@ In this section you will open your terminal and create some variables that will 
 
 2. Select **Bash** as the shell.
 
+   ![](../Images/01-02.png)
+
 3. Run the commands below to create the variables. Replace <myLocation> with a region near you.
 
    ```bash
@@ -92,12 +94,13 @@ You subscribe to an event grid topic to tell Event Grid which events you want to
 1. Subscribe to a custom topic by using the az eventgrid event-subscription create command. The script below will grab the needed subscription ID from your account and use in the creation of the event subscription.
 
    ```bash
-   az deployment group create \
-       --resource-group az204-evgrid-rg \
-       --template-uri "https://raw.githubusercontent.com/Azure-Samples/azure-event-grid-viewer/main/azuredeploy.json" \
-       --parameters siteName=$mySiteName hostingPlanName=viewerhost
+   endpoint="${mySiteURL}/api/updates"
+   subId=$(az account show --subscription "" | jq -r '.id')
    
-   echo "Your web app URL: ${mySiteURL}"
+   az eventgrid event-subscription create \
+       --source-resource-id "/subscriptions/$subId/resourceGroups/az204-evgrid-rg/providers/Microsoft.EventGrid/topics/$myTopicName" \
+       --name az204ViewerSub \
+       --endpoint $endpoint
 
 2. View your web app again, and notice that a subscription validation event has been sent to it. Select the eye icon to expand the event data. Event Grid sends the validation event so the endpoint can verify that it wants to receive event data. The web app includes code to validate the subscription.
 
